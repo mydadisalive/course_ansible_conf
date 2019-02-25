@@ -12,6 +12,6 @@
     - name: create a readme file
       copy:
         content: "welcome to my friendly server\n"
-        dest: /var/ftp/pub/README
+        dest: /var/README
         force: no
         mode: 0444
