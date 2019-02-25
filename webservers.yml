@@ -1,0 +1,42 @@
+---
+- name: Install apache2
+  hosts: webservers
+  become: true
+
+  tasks:
+  - name: Install apache2
+    apt:
+      name: apache2
+      state: latest
+
+  - name: Insert Index Page
+    template:
+      src: index.html
+      dest: /var/www/html
+    notify:
+      - restart apache2
+
+  - name: enable mod_rewrite
+    apache2_module: name=rewrite state=present
+    notify:
+      - restart apache2
+
+  - name: Enabling proxy module
+    apache2_module: name=proxy_http state=present
+    notify:
+      - restart apache2
+
+  - name: Adding Proxy Configuration
+    template: src=files/proxy.conf dest=/etc/apache2/conf-available owner=root group=root mode=0644
+    notify:
+      - enable proxy-config
+
+  handlers:
+    - name: enable proxy-config
+      shell: a2enconf proxy.conf
+      notify:
+      - restart apache2
+
+    - name: restart apache2
+      service: name=apache2 state=restarted
+

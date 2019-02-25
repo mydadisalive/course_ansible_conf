@@ -1,0 +1,30 @@
+---
+- name: "Installing additional software"
+  apt: 
+    name:
+    - dnsutils
+    - git
+    - vim
+    - ntp
+    - at
+    - lvm2
+    - atop
+    - htop
+    - apache2
+    state: present
+
+- name: "Adding bashrc"
+  copy: src=../files/bash.bashrc dest=/home/avicii/.bash_profile owner=root group=root mode=0644
+
+- name: "Copy hosts file"
+  copy: src=../files/hosts dest=/etc/hosts
+
+- name: "Copy motd file"
+  copy: src=../files/motd dest=/etc/motd
+
+- name: add a comment
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    line: "# test"
+    state: present
+

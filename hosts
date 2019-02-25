@@ -1,0 +1,9 @@
+[webservers]
+xubuntu1
+
+[appservers]
+xubuntu2
+
+[dbservers]
+xubuntu3
+
