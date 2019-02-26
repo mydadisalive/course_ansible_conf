@@ -1,7 +1,7 @@
 ---
 - name: deploy vsftpd
-  hosts: xubuntu1
-  become: true
+  hosts: centos1
+  become: false
   tasks:
     - name: install vsftpd
       package:

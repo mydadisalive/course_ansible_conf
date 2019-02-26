@@ -1,0 +1,8 @@
+---
+- name: motd
+  hosts: all
+  become: true
+  tasks:
+    - name: "Copy motd file"
+      copy: src=files/motd dest=/etc/motd
+

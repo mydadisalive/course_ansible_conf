@@ -1,0 +1,54 @@
+---
+- name: deploy and start Apache
+  hosts: centos1
+  become: true
+
+  vars:
+    apache_package: httpd
+    firewall_package: firewalld
+    web_service: httpd
+    firewall_service: firewalld
+    rule: http
+
+  tasks:
+  - name: install and update latest packages
+    yum:
+      name:
+        - "{{ apache_package }}"
+        - "{{ firewall_package }}"
+      state: latest
+
+  - name: start and enable the {{ firewall_service }}
+    service:
+      name: "{{ firewall_service }}"
+      enabled: true
+      state: started
+
+
+  - name: create a web content
+    copy:
+      content: "welcome to the Ansible managed web server"
+      dest: /var/www/html/index.html
+
+  - name: starte and enable {{ web_service }}
+    service:
+      name: "{{ web_service }}"
+      enabled: true
+      state: started
+
+
+  - name: open firewall for {{ rule }}
+    firewalld: 
+      service: "{{ rule }}"
+      permanent: true
+      immediate: true
+      state: enabled
+
+- name: verify the webserver is available
+  hosts: localhost
+  become: false
+  tasks:
+    - name: test that the webserver is available
+      uri:
+        url: http://centos1
+        status_code: 200

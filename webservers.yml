@@ -3,10 +3,16 @@
   hosts: webservers
   become: true
 
+  vars:
+    apache_package: apache2
+    web_service: apache2
+    rule: http
+    system_owner: anna@example.com
+
   tasks:
-  - name: Install apache2
+  - name: "Install {{ apache_package }}"
     apt:
-      name: apache2
+      name: "{{ apache_package }}"
       state: latest
 
   - name: Insert Index Page
@@ -14,29 +20,46 @@
       src: index.html
       dest: /var/www/html
     notify:
-      - restart apache2
+      - restart {{ web_service }}
 
   - name: enable mod_rewrite
     apache2_module: name=rewrite state=present
     notify:
-      - restart apache2
+      - restart {{ web_service }}
 
   - name: Enabling proxy module
     apache2_module: name=proxy_http state=present
     notify:
-      - restart apache2
+      - restart {{ web_service }}
 
-  - name: Adding Proxy Configuration
-    template: src=files/proxy.conf dest=/etc/apache2/conf-available owner=root group=root mode=0644
+  - template:
+      src: files/http.j2
+      dest: /etc/apache2/conf-available
+      owner: root
+      group: root
+      mode: 0644
     notify:
-      - enable proxy-config
+      - restart {{ web_service }}
+
+
+
 
   handlers:
     - name: enable proxy-config
       shell: a2enconf proxy.conf
       notify:
-      - restart apache2
+      - restart {{ web_service }}
 
-    - name: restart apache2
+    - name: restart {{ web_service }}
       service: name=apache2 state=restarted
+
+
+- name: verify the webserver is available
+  hosts: localhost
+  become: false
+  tasks:
+    - name: test that the webserver is available
+      uri:
+        url: http://xubuntu1
+        status_code: 200
 
