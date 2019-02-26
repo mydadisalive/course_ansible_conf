@@ -15,12 +15,12 @@
       name: "{{ apache_package }}"
       state: latest
 
-  - name: Insert Index Page
-    template:
-      src: index.html
-      dest: /var/www/html
-    notify:
-      - restart {{ web_service }}
+      #  - name: Insert Index Page
+      #    template:
+      #      src: index.html
+      #      dest: /var/www/html
+      #    notify:
+      #      - restart {{ web_service }}
 
   - name: enable mod_rewrite
     apache2_module: name=rewrite state=present
@@ -32,6 +32,15 @@
     notify:
       - restart {{ web_service }}
 
+  - name: deploy website
+    git:
+      repo: https://github.com/mydadisalive/website.git
+      dest: /var/www/html
+      accept_hostkey: yes
+    notify:
+      - restart {{ web_service }}
+
+
   - template:
       src: files/http.j2
       dest: /etc/apache2/conf-available
@@ -40,9 +49,6 @@
       mode: 0644
     notify:
       - restart {{ web_service }}
-
-
-
 
   handlers:
     - name: enable proxy-config
@@ -62,4 +68,3 @@
       uri:
         url: http://xubuntu1
         status_code: 200
-
